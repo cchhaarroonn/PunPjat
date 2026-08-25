@@ -1,23 +1,36 @@
 <!DOCTYPE html>
-<html lang="hr">
+<html lang="hr" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title id="page-title">PunPjat — Recept</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
 </head>
-<body class="bg-stone-50 text-stone-800 font-sans antialiased min-h-screen flex flex-col justify-between">
+<body class="bg-stone-50 dark:bg-stone-950 text-stone-800 dark:text-stone-100 font-sans antialiased min-h-screen flex flex-col justify-between transition-colors duration-300">
 
     <!-- Navigacija -->
-    <header class="bg-white border-b border-stone-200 sticky top-0 z-50">
+    <header class="bg-white/80 dark:bg-stone-900/80 backdrop-blur-md border-b border-stone-200 dark:border-stone-800 sticky top-0 z-50 transition-colors duration-300">
         <div class="max-w-4xl mx-auto px-6 h-20 flex items-center justify-between">
-            <a href="/" class="text-2xl font-black tracking-tight text-orange-600 flex items-center gap-2">
+            <a href="/" class="text-2xl font-black tracking-tight text-orange-600 dark:text-orange-500 flex items-center gap-2">
                 <span>🍲</span> PunPjat
             </a>
-            <a href="/" class="text-sm font-semibold text-stone-600 hover:text-orange-600 transition">
-                &larr; Natrag na sve recepte
-            </a>
+            
+            <div class="flex items-center gap-4">
+                <a href="/" class="text-sm font-semibold text-stone-600 dark:text-stone-300 hover:text-orange-600 dark:hover:text-orange-400 transition">
+                    &larr; Natrag
+                </a>
+                <!-- Gumb za Light/Dark Theme -->
+                <button onclick="toggleTheme()" class="p-2.5 rounded-xl bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-700 transition shadow-sm" aria-label="Prebaci temu">
+                    <svg id="sun-icon" class="w-5 h-5 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                    <svg id="moon-icon" class="w-5 h-5 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path></svg>
+                </button>
+            </div>
         </div>
     </header>
 
@@ -26,17 +39,17 @@
         
         <!-- Zaglavlje recepta -->
         <div class="mb-8">
-            <span id="recipe-category" class="text-xs font-bold text-orange-600 uppercase tracking-wider bg-orange-50 px-3 py-1 rounded-full border border-orange-100">Kategorija</span>
-            <h1 id="recipe-title" class="text-3xl md:text-5xl font-extrabold text-stone-900 tracking-tight mt-3 mb-4">
+            <span id="recipe-category" class="text-xs font-bold text-orange-600 dark:text-orange-400 uppercase tracking-wider bg-orange-50 dark:bg-orange-950/50 px-3 py-1 rounded-full border border-orange-100 dark:border-orange-900/50">Kategorija</span>
+            <h1 id="recipe-title" class="text-3xl md:text-5xl font-extrabold text-stone-900 dark:text-white tracking-tight mt-3 mb-4">
                 Učitavanje recepta...
             </h1>
-            <p id="recipe-desc" class="text-lg text-stone-600">
+            <p id="recipe-desc" class="text-lg text-stone-600 dark:text-stone-400">
                 Molimo pričekajte trenutak dok dohvatimo podatke o jelu.
             </p>
         </div>
 
         <!-- Slika recepta -->
-        <div class="w-full h-72 md:h-96 bg-stone-200 rounded-2xl overflow-hidden mb-10 flex items-center justify-center text-stone-400 shadow-sm">
+        <div class="w-full h-72 md:h-96 bg-stone-100 dark:bg-stone-900 rounded-2xl overflow-hidden mb-10 flex items-center justify-center text-stone-400 border border-stone-200 dark:border-stone-800 shadow-sm">
             <span>Slika jela</span>
         </div>
 
@@ -44,21 +57,21 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
             
             <!-- Sastojci -->
-            <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm h-fit md:col-span-1">
-                <h3 class="text-xl font-bold text-stone-900 mb-4 pb-2 border-b border-stone-100 flex items-center gap-2">
+            <div class="bg-white dark:bg-stone-900 p-6 rounded-2xl border border-stone-200 dark:border-stone-800 shadow-sm h-fit md:col-span-1">
+                <h3 class="text-xl font-bold text-stone-900 dark:text-white mb-4 pb-2 border-b border-stone-100 dark:border-stone-800 flex items-center gap-2">
                     <span>🛒</span> Sastojci
                 </h3>
-                <ul id="recipe-ingredients" class="space-y-3 text-stone-700 text-sm">
+                <ul id="recipe-ingredients" class="space-y-3 text-stone-700 dark:text-stone-300 text-sm">
                     <li class="text-stone-400">Učitavanje sastojaka...</li>
                 </ul>
             </div>
 
             <!-- Koraci pripreme -->
-            <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm md:col-span-2">
-                <h3 class="text-xl font-bold text-stone-900 mb-4 pb-2 border-b border-stone-100 flex items-center gap-2">
+            <div class="bg-white dark:bg-stone-900 p-6 rounded-2xl border border-stone-200 dark:border-stone-800 shadow-sm md:col-span-2">
+                <h3 class="text-xl font-bold text-stone-900 dark:text-white mb-4 pb-2 border-b border-stone-100 dark:border-stone-800 flex items-center gap-2">
                     <span>👨‍🍳</span> Priprema
                 </h3>
-                <ol id="recipe-steps" class="space-y-4 text-stone-700 list-decimal list-inside">
+                <ol id="recipe-steps" class="space-y-4 text-stone-700 dark:text-stone-300">
                     <li class="text-stone-400">Učitavanje koraka pripreme...</li>
                 </ol>
             </div>
@@ -68,14 +81,33 @@
     </main>
 
     <!-- Podnožje -->
-    <footer class="bg-white border-t border-stone-200 py-8 mt-20">
+    <footer class="bg-white dark:bg-stone-900 border-t border-stone-200 dark:border-stone-800 py-8 mt-20 transition-colors duration-300">
         <div class="max-w-4xl mx-auto px-6 text-center text-stone-500 text-sm">
             &copy; 2026 PunPjat. Sva prava pridržana. S ljubavlju prema hrani.
         </div>
     </footer>
 
-    <!-- JavaScript za dohvat pojedinačnog recepta preko slug-a -->
+    <!-- Skripte -->
     <script>
+        function initTheme() {
+            if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        }
+        initTheme();
+
+        function toggleTheme() {
+            if (document.documentElement.classList.contains('dark')) {
+                document.documentElement.classList.remove('dark');
+                localStorage.theme = 'light';
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.theme = 'dark';
+            }
+        }
+
         async function ucitajPojedinacniRecept() {
             const urlParams = new URLSearchParams(window.location.search);
             const slug = urlParams.get('slug');
@@ -88,34 +120,29 @@
 
             try {
                 let response = await fetch(`/api/post?slug=${slug}`);
-                if (!response.ok) {
-                    throw new Error("Recept nije pronađen u bazi.");
-                }
+                if (!response.ok) throw new Error("Recept nije pronađen.");
                 let r = await response.json();
 
-                // Popunjavanje HTML elemenata s podacima iz Go API-ja
                 document.getElementById('page-title').innerText = `${r.title} — PunPjat`;
                 document.getElementById('recipe-category').innerText = r.category;
                 document.getElementById('recipe-title').innerText = r.title;
                 document.getElementById('recipe-desc').innerText = r.description;
 
-                // Popunjavanje sastojaka
                 let ingredientsList = document.getElementById('recipe-ingredients');
                 ingredientsList.innerHTML = '';
                 r.ingredients.forEach(ing => {
                     let li = document.createElement('li');
-                    li.className = "flex items-center gap-2 border-b border-stone-100 pb-2";
-                    li.innerHTML = `<span>•</span> ${ing}`;
+                    li.className = "flex items-center gap-2 border-b border-stone-100 dark:border-stone-800/60 pb-2";
+                    li.innerHTML = `<span class="text-orange-600 dark:text-orange-400">•</span> ${ing}`;
                     ingredientsList.appendChild(li);
                 });
 
-                // Popunjavanje koraka pripreme
                 let stepsList = document.getElementById('recipe-steps');
                 stepsList.innerHTML = '';
-                r.steps.forEach(step => {
+                r.steps.forEach((step, index) => {
                     let li = document.createElement('li');
-                    li.className = "leading-relaxed pb-2 border-b border-stone-100 last:border-none";
-                    li.innerText = step;
+                    li.className = "leading-relaxed pb-3 border-b border-stone-100 dark:border-stone-800/60 last:border-none flex gap-3";
+                    li.innerHTML = `<span class="font-bold text-orange-600 dark:text-orange-400">${index + 1}.</span> <span>${step}</span>`;
                     stepsList.appendChild(li);
                 });
 

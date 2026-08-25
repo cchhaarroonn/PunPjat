@@ -1,25 +1,40 @@
 <!DOCTYPE html>
-<html lang="hr">
+<html lang="hr" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PunPjat — Najbolji recepti na jednom mjestu</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
 </head>
-<body class="bg-stone-50 text-stone-800 font-sans antialiased min-h-screen flex flex-col justify-between">
+<body class="bg-stone-50 dark:bg-stone-950 text-stone-800 dark:text-stone-100 font-sans antialiased min-h-screen flex flex-col justify-between transition-colors duration-300">
 
     <!-- Navigacija -->
-    <header class="bg-white border-b border-stone-200 sticky top-0 z-50">
+    <header class="bg-white/80 dark:bg-stone-900/80 backdrop-blur-md border-b border-stone-200 dark:border-stone-800 sticky top-0 z-50 transition-colors duration-300">
         <div class="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
-            <a href="/" class="text-2xl font-black tracking-tight text-orange-600 flex items-center gap-2">
+            <a href="/" class="text-2xl font-black tracking-tight text-orange-600 dark:text-orange-500 flex items-center gap-2">
                 <span>🍲</span> PunPjat
             </a>
-            <nav class="flex items-center gap-6 font-medium text-stone-600">
-                <a href="/" class="hover:text-orange-600 transition">Recepti</a>
-                <a href="#kategorije" class="hover:text-orange-600 transition">Kategorije</a>
-                <a href="#o-nama" class="hover:text-orange-600 transition">O nama</a>
-            </nav>
+            
+            <div class="flex items-center gap-6">
+                <nav class="hidden md:flex items-center gap-6 font-medium text-stone-600 dark:text-stone-300">
+                    <a href="/" class="hover:text-orange-600 dark:hover:text-orange-400 transition">Recepti</a>
+                    <a href="#recepti" class="hover:text-orange-600 dark:hover:text-orange-400 transition">Pregled</a>
+                </nav>
+
+                <!-- Gumb za Light/Dark Theme -->
+                <button onclick="toggleTheme()" class="p-2.5 rounded-xl bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-700 transition shadow-sm" aria-label="Prebaci temu">
+                    <!-- Sunce ikona -->
+                    <svg id="sun-icon" class="w-5 h-5 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                    <!-- Mjesec ikona -->
+                    <svg id="moon-icon" class="w-5 h-5 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path></svg>
+                </button>
+            </div>
         </div>
     </header>
 
@@ -28,50 +43,96 @@
         
         <!-- Hero sekcija -->
         <section class="text-center py-12 md:py-20">
-            <h1 class="text-4xl md:text-6xl font-extrabold text-stone-900 tracking-tight mb-6">
-                Svaki dan <span class="text-orange-600">pun pjat</span> dobre hrane!
+            <h1 class="text-4xl md:text-6xl font-extrabold text-stone-900 dark:text-white tracking-tight mb-6">
+                Svaki dan <span class="text-orange-600 dark:text-orange-500">pun pjat</span> dobre hrane!
             </h1>
-            <p class="text-lg md:text-xl text-stone-600 max-w-2xl mx-auto mb-8">
+            <p class="text-lg md:text-xl text-stone-600 dark:text-stone-400 max-w-2xl mx-auto mb-8">
                 Otkrij provjerene recepte za brza jela, tradicionalne specijalitete i slatke poslastice. 
             </p>
             <div class="flex justify-center gap-4">
-                <a href="#recepti" class="bg-orange-600 hover:bg-orange-700 text-white font-semibold px-6 py-3 rounded-xl shadow-md transition">
+                <a href="#recepti" class="bg-orange-600 hover:bg-orange-700 dark:bg-orange-500 dark:hover:bg-orange-600 text-white font-semibold px-6 py-3 rounded-xl shadow-lg shadow-orange-600/20 transition">
                     Pregledaj recepte
                 </a>
             </div>
         </section>
 
-        <!-- Sekcija s receptima (Ovdje će JS kasnije ubacivati podatke iz Go servera) -->
+        <!-- Sekcija s receptima -->
         <section id="recepti" class="mt-12">
-            <h2 class="text-2xl font-bold text-stone-900 mb-6 border-b pb-2">Najnoviji recepti</h2>
+            <h2 class="text-2xl font-bold text-stone-900 dark:text-white mb-6 border-b border-stone-200 dark:border-stone-800 pb-2">Najnoviji recepti</h2>
             
             <div id="grid-recepata" class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                
-                <!-- Primjer statične kartice (kasnije se puni preko JS-a) -->
-                <article class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition border border-stone-200 flex flex-col">
-                    <div class="h-48 bg-stone-200 flex items-center justify-center text-stone-400">
-                        <!-- Ovdje ide slika jela -->
-                        <span>Slika recepta</span>
-                    </div>
-                    <div class="p-6 flex flex-col flex-grow">
-                        <span class="text-xs font-bold text-orange-600 uppercase tracking-wider mb-2">Glavna jela</span>
-                        <h3 class="text-xl font-bold text-stone-900 mb-2">Sočni recept za domaće ćevape</h3>
-                        <p class="text-stone-600 text-sm mb-4 flex-grow">Nauči kako pripremiti savršene, mekane ćevape s domaćim somunom.</p>
-                        <a href="post.html?slug=domaci-cevapi" class="text-orange-600 font-semibold text-sm hover:underline mt-auto">Pročitaj recept &rarr;</a>
-                    </div>
-                </article>
-
+                <div class="col-span-full text-center text-stone-400 py-10">Učitavanje recepata...</div>
             </div>
         </section>
 
     </main>
 
-    <!-- Podnožje (Footer) -->
-    <footer class="bg-white border-t border-stone-200 py-8 mt-20">
+    <!-- Podnožje -->
+    <footer class="bg-white dark:bg-stone-900 border-t border-stone-200 dark:border-stone-800 py-8 mt-20 transition-colors duration-300">
         <div class="max-w-6xl mx-auto px-6 text-center text-stone-500 text-sm">
             &copy; 2026 PunPjat. Sva prava pridržana. S ljubavlju prema hrani.
         </div>
     </footer>
 
+    <!-- Skripte -->
+    <script>
+        // Tema skripta
+        function initTheme() {
+            if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        }
+        initTheme();
+
+        function toggleTheme() {
+            if (document.documentElement.classList.contains('dark')) {
+                document.documentElement.classList.remove('dark');
+                localStorage.theme = 'light';
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.theme = 'dark';
+            }
+        }
+
+        // Dohvat s Go API-ja
+        async function ucitajRecepte() {
+            try {
+                let response = await fetch('/api/post');
+                let recipes = await response.json();
+                
+                let grid = document.getElementById('grid-recepata');
+                grid.innerHTML = ''; 
+
+                if (!Array.isArray(recipes) || recipes.length === 0) {
+                    grid.innerHTML = '<p class="text-stone-500 col-span-full text-center">Trenutno nema dostupnih recepata.</p>';
+                    return;
+                }
+
+                recipes.forEach(r => {
+                    let kartica = `
+                        <article class="bg-white dark:bg-stone-900 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl dark:hover:border-stone-700 transition border border-stone-200 dark:border-stone-800 flex flex-col group">
+                            <div class="h-48 bg-stone-100 dark:bg-stone-800 flex items-center justify-center text-stone-400 group-hover:scale-105 transition duration-500">
+                                <span>Slika jela</span>
+                            </div>
+                            <div class="p-6 flex flex-col flex-grow">
+                                <span class="text-xs font-bold text-orange-600 dark:text-orange-400 uppercase tracking-wider mb-2">${r.category}</span>
+                                <h3 class="text-xl font-bold text-stone-900 dark:text-white mb-2 group-hover:text-orange-600 dark:group-hover:text-orange-400 transition">${r.title}</h3>
+                                <p class="text-stone-600 dark:text-stone-400 text-sm mb-6 flex-grow">${r.description}</p>
+                                <a href="post.html?slug=${r.slug}" class="text-orange-600 dark:text-orange-400 font-semibold text-sm hover:underline mt-auto inline-flex items-center gap-1">Pročitaj recept &rarr;</a>
+                            </div>
+                        </article>
+                    `;
+                    grid.innerHTML += kartica;
+                });
+            } catch (error) {
+                console.error("Greška kod dohvata recepata:", error);
+                document.getElementById('grid-recepata').innerHTML = '<p class="text-red-500 col-span-full text-center">Greška pri učitavanju recepata.</p>';
+            }
+        }
+
+        window.onload = ucitajRecepte;
+    </script>
 </body>
 </html>
