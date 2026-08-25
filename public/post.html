@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">PunPjat — Recept</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-stone-50 text-stone-800 font-sans antialiased min-h-screen flex flex-col justify-between">
+
+    <!-- Navigacija -->
+    <header class="bg-white border-b border-stone-200 sticky top-0 z-50">
+        <div class="max-w-4xl mx-auto px-6 h-20 flex items-center justify-between">
+            <a href="/" class="text-2xl font-black tracking-tight text-orange-600 flex items-center gap-2">
+                <span>🍲</span> PunPjat
+            </a>
+            <a href="/" class="text-sm font-semibold text-stone-600 hover:text-orange-600 transition">
+                &larr; Natrag na sve recepte
+            </a>
+        </div>
+    </header>
+
+    <!-- Glavni sadržaj recepta -->
+    <main class="max-w-4xl mx-auto px-6 py-10 flex-grow w-full">
+        
+        <!-- Zaglavlje recepta -->
+        <div class="mb-8">
+            <span id="recipe-category" class="text-xs font-bold text-orange-600 uppercase tracking-wider bg-orange-50 px-3 py-1 rounded-full border border-orange-100">Kategorija</span>
+            <h1 id="recipe-title" class="text-3xl md:text-5xl font-extrabold text-stone-900 tracking-tight mt-3 mb-4">
+                Učitavanje recepta...
+            </h1>
+            <p id="recipe-desc" class="text-lg text-stone-600">
+                Molimo pričekajte trenutak dok dohvatimo podatke o jelu.
+            </p>
+        </div>
+
+        <!-- Slika recepta -->
+        <div class="w-full h-72 md:h-96 bg-stone-200 rounded-2xl overflow-hidden mb-10 flex items-center justify-center text-stone-400 shadow-sm">
+            <span>Slika jela</span>
+        </div>
+
+        <!-- Sastojci i Priprema -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+            
+            <!-- Sastojci -->
+            <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm h-fit md:col-span-1">
+                <h3 class="text-xl font-bold text-stone-900 mb-4 pb-2 border-b border-stone-100 flex items-center gap-2">
+                    <span>🛒</span> Sastojci
+                </h3>
+                <ul id="recipe-ingredients" class="space-y-3 text-stone-700 text-sm">
+                    <li class="text-stone-400">Učitavanje sastojaka...</li>
+                </ul>
+            </div>
+
+            <!-- Koraci pripreme -->
+            <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm md:col-span-2">
+                <h3 class="text-xl font-bold text-stone-900 mb-4 pb-2 border-b border-stone-100 flex items-center gap-2">
+                    <span>👨‍🍳</span> Priprema
+                </h3>
+                <ol id="recipe-steps" class="space-y-4 text-stone-700 list-decimal list-inside">
+                    <li class="text-stone-400">Učitavanje koraka pripreme...</li>
+                </ol>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Podnožje -->
+    <footer class="bg-white border-t border-stone-200 py-8 mt-20">
+        <div class="max-w-4xl mx-auto px-6 text-center text-stone-500 text-sm">
+            &copy; 2026 PunPjat. Sva prava pridržana. S ljubavlju prema hrani.
+        </div>
+    </footer>
+
+    <!-- JavaScript za dohvat pojedinačnog recepta preko slug-a -->
+    <script>
+        async function ucitajPojedinacniRecept() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const slug = urlParams.get('slug');
+
+            if (!slug) {
+                document.getElementById('recipe-title').innerText = "Recept nije pronađen";
+                document.getElementById('recipe-desc').innerText = "Niste odabrali valjani recept.";
+                return;
+            }
+
+            try {
+                let response = await fetch(`/api/post?slug=${slug}`);
+                if (!response.ok) {
+                    throw new Error("Recept nije pronađen u bazi.");
+                }
+                let r = await response.json();
+
+                // Popunjavanje HTML elemenata s podacima iz Go API-ja
+                document.getElementById('page-title').innerText = `${r.title} — PunPjat`;
+                document.getElementById('recipe-category').innerText = r.category;
+                document.getElementById('recipe-title').innerText = r.title;
+                document.getElementById('recipe-desc').innerText = r.description;
+
+                // Popunjavanje sastojaka
+                let ingredientsList = document.getElementById('recipe-ingredients');
+                ingredientsList.innerHTML = '';
+                r.ingredients.forEach(ing => {
+                    let li = document.createElement('li');
+                    li.className = "flex items-center gap-2 border-b border-stone-100 pb-2";
+                    li.innerHTML = `<span>•</span> ${ing}`;
+                    ingredientsList.appendChild(li);
+                });
+
+                // Popunjavanje koraka pripreme
+                let stepsList = document.getElementById('recipe-steps');
+                stepsList.innerHTML = '';
+                r.steps.forEach(step => {
+                    let li = document.createElement('li');
+                    li.className = "leading-relaxed pb-2 border-b border-stone-100 last:border-none";
+                    li.innerText = step;
+                    stepsList.appendChild(li);
+                });
+
+            } catch (error) {
+                console.error("Greška:", error);
+                document.getElementById('recipe-title').innerText = "Greška";
+                document.getElementById('recipe-desc').innerText = "Došlo je do pogreške prilikom dohvaćanja recepta.";
+            }
+        }
+
+        window.onload = ucitajPojedinacniRecept;
+    </script>
+</body>
+</html>
