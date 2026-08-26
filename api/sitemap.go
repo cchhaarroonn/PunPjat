@@ -14,8 +14,6 @@ type sitemapRecipe struct {
 	Slug string `json:"slug"`
 }
 
-// Sitemap generira sitemap.xml na temelju svih recepata u bazi.
-// Vercel je ovo automatski izlaže na /api/sitemap jer je datoteka u api/ folderu.
 func Sitemap(w http.ResponseWriter, r *http.Request) {
 	supabaseURL := os.Getenv("SUPABASE_URL")
 	supabaseKey := os.Getenv("SUPABASE_SECRET_KEY")
@@ -55,10 +53,8 @@ func Sitemap(w http.ResponseWriter, r *http.Request) {
 	sb.WriteString(`<?xml version="1.0" encoding="UTF-8"?>` + "\n")
 	sb.WriteString(`<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">` + "\n")
 
-	// Statičke stranice
 	sb.WriteString(fmt.Sprintf("  <url><loc>%s/</loc><priority>1.0</priority></url>\n", siteURL))
 
-	// Stranica po receptu
 	for _, rec := range recipes {
 		sb.WriteString(fmt.Sprintf(
 			"  <url><loc>%s/post.html?slug=%s</loc><priority>0.8</priority></url>\n",

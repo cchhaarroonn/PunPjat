@@ -189,7 +189,7 @@
             }
 
             try {
-                let response = await fetch(`/api/post?slug=${slug}`);
+                let response = await fetch(`/api/post?slug=${encodeURIComponent(slug)}`);
                 if (!response.ok) throw new Error("Recept nije pronađen.");
                 let r = await response.json();
 
@@ -207,7 +207,6 @@
                 const slikaRecepta = r.image_url || 'https://images.unsplash.com/photo-1545231027-637d2f6610f8?auto=format&fit=crop&w=800&q=80';
                 document.getElementById('recipe-image').src = slikaRecepta;
 
-                // Meta description za tražilice
                 let metaDesc = document.querySelector('meta[name="description"]');
                 if (!metaDesc) {
                     metaDesc = document.createElement('meta');
@@ -216,7 +215,6 @@
                 }
                 metaDesc.setAttribute('content', r.description || '');
 
-                // Schema.org Recipe structured data
                 const jsonLd = {
                     "@context": "https://schema.org/",
                     "@type": "Recipe",

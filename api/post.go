@@ -23,7 +23,6 @@ type Recipe struct {
 }
 
 func Handler(w http.ResponseWriter, r *http.Request) {
-	// CORS i Content-Type zaglavlja moraju biti prva stvar
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
@@ -39,7 +38,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 	if supabaseURL == "" || supabaseKey == "" {
 		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Nedostaju environment varijable na Vercelu"})
+		json.NewEncoder(w).Encode(map[string]string{"error": "Nedostaju environment varijable"})
 		return
 	}
 
@@ -48,7 +47,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	u, err := url.Parse(fmt.Sprintf("%s/rest/v1/recipes", supabaseURL))
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Nevaljan Supabase URL"})
+		json.NewEncoder(w).Encode(map[string]string{"error": "Nevaljan URL baze"})
 		return
 	}
 
@@ -62,7 +61,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Greška pri kreiranju zahtjeva"})
+		json.NewEncoder(w).Encode(map[string]string{"error": "Greška zahtjeva"})
 		return
 	}
 
@@ -74,7 +73,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	resp, err := client.Do(req)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Greška pri spajanju na bazu"})
+		json.NewEncoder(w).Encode(map[string]string{"error": "Greška spajanja"})
 		return
 	}
 	defer resp.Body.Close()
@@ -82,7 +81,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	var recipes []Recipe
 	if err := json.NewDecoder(resp.Body).Decode(&recipes); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Greška pri dekodiranju podataka iz baze"})
+		json.NewEncoder(w).Encode(map[string]string{"error": "Greška dekodiranja"})
 		return
 	}
 
