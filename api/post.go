@@ -3,9 +3,11 @@ package handler
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"os"
+	"time"
 )
 
 type Recipe struct {
@@ -69,19 +71,40 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", supabaseKey))
 	req.Header.Set("Content-Type", "application/json")
 
-	client := &http.Client{}
+	client := &http.Client{Timeout: 10 * time.Second}
 	resp, err := client.Do(req)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Greška spajanja"})
+		json.NewEncoder(w).Encode(map[string]string{"error": "Greška spajanja na Supabase: " + err.Error()})
 		return
 	}
 	defer resp.Body.Close()
 
-	var recipes []Recipe
-	if err := json.NewDecoder(resp.Body).Decode(&recipes); err != nil {
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Greška dekodiranja"})
+		json.NewEncoder(w).Encode(map[string]string{"error": "Greška čitanja odgovora"})
+		return
+	}
+
+	// Supabase ne vraća niz kad nešto pođe po zlu (kriv apikey, RLS,
+	// nepostojeća tablica...) nego JSON objekt s porukom greške.
+	// Prije se to tiho pokušavalo dekodirati kao []Recipe i puklo bi
+	// s generičnom "Greška dekodiranja" bez pravog razloga.
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		w.WriteHeader(http.StatusBadGateway)
+		json.NewEncoder(w).Encode(map[string]string{
+			"error":            "Supabase je vratio grešku",
+			"supabase_status":  fmt.Sprintf("%d", resp.StatusCode),
+			"supabase_message": string(body),
+		})
+		return
+	}
+
+	var recipes []Recipe
+	if err := json.Unmarshal(body, &recipes); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Greška dekodiranja: " + err.Error()})
 		return
 	}
 

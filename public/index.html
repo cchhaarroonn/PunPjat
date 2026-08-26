@@ -393,6 +393,10 @@
                 const response = await fetch('/api/post');
                 const recepti = await response.json();
 
+                if (!response.ok) {
+                    throw new Error(recepti?.error || recepti?.supabase_message || `HTTP ${response.status}`);
+                }
+
                 sviRecepti = Array.isArray(recepti) ? recepti : [];
                 document.getElementById('stat-recepata').textContent = `${sviRecepti.length} ${sviRecepti.length === 1 ? 'recept čeka' : 'recepata čeka'} u kuhinji`;
                 popuniKategorije(sviRecepti);
@@ -404,6 +408,7 @@
                         <p class="text-4xl mb-3">🔥</p>
                         <p class="font-serif text-xl mb-1">Nešto je zagorjelo.</p>
                         <p class="text-ink/60 dark:text-inkdark/60 text-sm">Greška pri učitavanju recepata. Pokušaj osvježiti stranicu.</p>
+                        <p class="text-ink/40 dark:text-inkdark/40 text-xs font-mono mt-2">${escapeHtml(error.message || '')}</p>
                     </div>`;
                 document.getElementById('stat-recepata').textContent = '';
             }

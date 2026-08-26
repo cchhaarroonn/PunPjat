@@ -190,8 +190,15 @@
 
             try {
                 let response = await fetch(`/api/post?slug=${encodeURIComponent(slug)}`);
-                if (!response.ok) throw new Error("Recept nije pronađen.");
                 let r = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(r?.error || `Recept nije pronađen (HTTP ${response.status}).`);
+                }
+
+                // Osiguraj da su ovo uvijek nizovi, čak i ako je u bazi NULL
+                r.ingredients = Array.isArray(r.ingredients) ? r.ingredients : [];
+                r.steps = Array.isArray(r.steps) ? r.steps : [];
 
                 document.getElementById('page-title').innerText = `${r.title} — PunPjat`;
                 document.getElementById('recipe-category').innerText = r.category || 'Recept';
@@ -260,7 +267,7 @@
             } catch (error) {
                 console.error("Greška:", error);
                 document.getElementById('recipe-title').innerText = "Greška";
-                document.getElementById('recipe-desc').innerText = "Došlo je do pogreške prilikom dohvaćanja recepta.";
+                document.getElementById('recipe-desc').innerText = error.message || "Došlo je do pogreške prilikom dohvaćanja recepta.";
             }
         }
 
