@@ -3,79 +3,146 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#3F4A2E">
     <title id="page-title">PunPjat — Recept</title>
-    <!-- Tailwind CSS CDN -->
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Space+Mono:wght@400;700&family=Work+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        paper: '#F6EFDD',
+                        paperdark: '#1B1D14',
+                        ink: '#2A2318',
+                        inkdark: '#F1E9D8',
+                        olive: '#3F4A2E',
+                        olivedeep: '#2E361F',
+                        saffron: '#E2A63B',
+                        paprika: '#B8451F',
+                        card: '#FFFCF4',
+                        carddark: '#262A1C',
+                    },
+                    fontFamily: {
+                        serif: ['"Instrument Serif"', 'Georgia', 'serif'],
+                        sans: ['"Work Sans"', 'sans-serif'],
+                        mono: ['"Space Mono"', 'monospace'],
+                    },
+                }
+            }
         }
     </script>
+
+    <style>
+        :root { --page-bg: #F6EFDD; }
+        .dark { --page-bg: #1B1D14; }
+
+        /* Poderani/nazubljeni rub kartice-cedulje */
+        .ticket { position: relative; }
+        .ticket::after {
+            content: "";
+            position: absolute;
+            left: 0; right: 0; bottom: -1px;
+            height: 13px;
+            background-image:
+                linear-gradient(135deg, var(--page-bg) 50%, transparent 50%),
+                linear-gradient(45deg, var(--page-bg) 50%, transparent 50%);
+            background-size: 16px 16px;
+            background-position: bottom left;
+            background-repeat: repeat-x;
+            pointer-events: none;
+        }
+
+        /* Pečat kategorije */
+        .stamp {
+            border: 2px dashed currentColor;
+            transform: rotate(-4deg);
+        }
+
+        ::selection { background: #E2A63B; color: #2A2318; }
+
+        :focus-visible {
+            outline: 3px solid #E2A63B;
+            outline-offset: 2px;
+            border-radius: 4px;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+        }
+    </style>
 </head>
-<body class="bg-stone-50 dark:bg-stone-950 text-stone-800 dark:text-stone-100 font-sans antialiased min-h-screen flex flex-col justify-between transition-colors duration-300">
+<body class="bg-paper dark:bg-paperdark text-ink dark:text-inkdark font-sans antialiased min-h-screen flex flex-col justify-between transition-colors duration-300">
 
     <!-- Navigacija -->
-    <header class="print:hidden bg-white/80 dark:bg-stone-900/80 backdrop-blur-md border-b border-stone-200 dark:border-stone-800 sticky top-0 z-50 transition-colors duration-300">
+    <header class="print:hidden bg-olive text-white sticky top-0 z-50">
         <div class="max-w-4xl mx-auto px-6 h-20 flex items-center justify-between">
-            <a href="/" class="text-2xl font-black tracking-tight text-orange-600 dark:text-orange-500 flex items-center gap-2">
-                <span>🍲</span> PunPjat
+            <a href="/" class="text-2xl font-serif italic tracking-tight flex items-center gap-2">
+                <span aria-hidden="true">🍲</span> PunPjat
             </a>
             
             <div class="flex items-center gap-4">
-                <a href="/" class="text-sm font-semibold text-stone-600 dark:text-stone-300 hover:text-orange-600 dark:hover:text-orange-400 transition">
-                    &larr; Natrag
+                <a href="/" class="text-sm font-medium text-white/80 hover:text-saffron transition">
+                    &larr; Natrag na recepte
                 </a>
-                <!-- Gumb za Light/Dark Theme -->
-                <button onclick="toggleTheme()" class="p-2.5 rounded-xl bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-700 transition shadow-sm" aria-label="Prebaci temu">
-                    <svg id="sun-icon" class="w-5 h-5 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-                    <svg id="moon-icon" class="w-5 h-5 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path></svg>
+                <button onclick="toggleTheme()" class="p-2.5 rounded-full bg-white/10 hover:bg-white/20 transition" aria-label="Prebaci temu (svijetla/tamna)">
+                    <svg id="sun-icon" class="w-5 h-5 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                    <svg id="moon-icon" class="w-5 h-5 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path></svg>
                 </button>
             </div>
         </div>
     </header>
 
     <!-- Glavni sadržaj recepta -->
-    <main class="max-w-4xl mx-auto px-6 py-10 flex-grow w-full">
+    <main class="max-w-4xl mx-auto px-6 py-12 flex-grow w-full">
         
         <!-- Zaglavlje recepta -->
-        <div class="mb-8">
-            <span id="recipe-category" class="text-xs font-bold text-orange-600 dark:text-orange-400 uppercase tracking-wider bg-orange-50 dark:bg-orange-950/50 px-3 py-1 rounded-full border border-orange-100 dark:border-orange-900/50">Kategorija</span>
-            <h1 id="recipe-title" class="text-3xl md:text-5xl font-extrabold text-stone-900 dark:text-white tracking-tight mt-3 mb-4">
+        <div class="mb-8 text-center md:text-left">
+            <div class="flex flex-wrap items-center justify-center md:justify-start gap-3 mb-4">
+                <span id="recipe-category" class="stamp inline-block text-xs font-mono uppercase tracking-wider bg-card dark:bg-carddark text-ink dark:text-inkdark px-3 py-1 rounded-full">Kategorija</span>
+                <span id="recipe-time" class="font-mono text-xs text-ink/60 dark:text-inkdark/60 hidden"></span>
+            </div>
+            <h1 id="recipe-title" class="text-4xl md:text-6xl font-serif tracking-tight mt-2 mb-4 leading-[1.1]">
                 Učitavanje recepta...
             </h1>
-            <p id="recipe-desc" class="text-lg text-stone-600 dark:text-stone-400">
+            <p id="recipe-desc" class="text-base md:text-lg text-ink/70 dark:text-inkdark/70 max-w-2xl leading-relaxed">
                 Molimo pričekajte trenutak dok dohvatimo podatke o jelu.
             </p>
-            <button onclick="window.print()" class="print:hidden mt-4 inline-flex items-center gap-2 text-sm font-semibold text-stone-500 dark:text-stone-400 hover:text-orange-600 dark:hover:text-orange-400 transition">
+            <button onclick="window.print()" class="print:hidden mt-6 inline-flex items-center gap-2 text-xs font-mono uppercase tracking-widest bg-paprika/10 hover:bg-paprika/20 dark:bg-saffron/10 dark:hover:bg-saffron/25 text-paprika dark:text-saffron px-4 py-2 rounded-md transition">
                 🖨️ Isprintaj recept
             </button>
         </div>
 
         <!-- Slika recepta -->
-        <div class="w-full h-72 md:h-96 bg-stone-100 dark:bg-stone-900 rounded-2xl overflow-hidden mb-10 border border-stone-200 dark:border-stone-800 shadow-sm">
-            <img id="recipe-image" src="" alt="Slika jela" class="w-full h-full object-cover">
+        <div class="w-full h-72 md:h-[420px] bg-card dark:bg-carddark rounded-xl overflow-hidden mb-12 border-2 border-ink/15 dark:border-white/15 shadow-xl">
+            <img id="recipe-image" src="" alt="Slika jela" onerror="this.src='https://images.unsplash.com/photo-1545231027-637d2f6610f8?auto=format&fit=crop&w=800&q=80'" class="w-full h-full object-cover">
         </div>
 
         <!-- Sastojci i Priprema -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
             
             <!-- Sastojci -->
-            <div class="bg-white dark:bg-stone-900 p-6 rounded-2xl border border-stone-200 dark:border-stone-800 shadow-sm h-fit md:col-span-1">
-                <h3 class="text-xl font-bold text-stone-900 dark:text-white mb-4 pb-2 border-b border-stone-100 dark:border-stone-800 flex items-center gap-2">
-                    <span>🛒</span> Sastojci
+            <div class="ticket bg-card dark:bg-carddark p-6 md:p-8 rounded-xl border-2 border-ink/15 dark:border-white/15 shadow-md h-fit md:col-span-1">
+                <h3 class="text-2xl font-serif mb-4 pb-3 border-b border-dashed border-ink/15 dark:border-white/15 flex items-center gap-2">
+                    <span aria-hidden="true">🛒</span> Sastojci
                 </h3>
-                <ul id="recipe-ingredients" class="space-y-3 text-stone-700 dark:text-stone-300 text-sm">
-                    <li class="text-stone-400">Učitavanje sastojaka...</li>
+                <ul id="recipe-ingredients" class="space-y-3 text-ink/80 dark:text-inkdark/80 text-sm">
+                    <li class="text-ink/40 dark:text-inkdark/40 font-mono text-xs">Učitavanje sastojaka...</li>
                 </ul>
             </div>
 
             <!-- Koraci pripreme -->
-            <div class="bg-white dark:bg-stone-900 p-6 rounded-2xl border border-stone-200 dark:border-stone-800 shadow-sm md:col-span-2">
-                <h3 class="text-xl font-bold text-stone-900 dark:text-white mb-4 pb-2 border-b border-stone-100 dark:border-stone-800 flex items-center gap-2">
-                    <span>👨‍🍳</span> Priprema
+            <div class="ticket bg-card dark:bg-carddark p-6 md:p-8 rounded-xl border-2 border-ink/15 dark:border-white/15 shadow-md md:col-span-2">
+                <h3 class="text-2xl font-serif mb-6 pb-3 border-b border-dashed border-ink/15 dark:border-white/15 flex items-center gap-2">
+                    <span aria-hidden="true">👨‍🍳</span> Priprema
                 </h3>
-                <ol id="recipe-steps" class="space-y-4 text-stone-700 dark:text-stone-300">
-                    <li class="text-stone-400">Učitavanje koraka pripreme...</li>
+                <ol id="recipe-steps" class="space-y-6 text-ink/80 dark:text-inkdark/80 text-base">
+                    <li class="text-ink/40 dark:text-inkdark/40 font-mono text-xs">Učitavanje koraka pripreme...</li>
                 </ol>
             </div>
 
@@ -84,9 +151,9 @@
     </main>
 
     <!-- Podnožje -->
-    <footer class="bg-white dark:bg-stone-900 border-t border-stone-200 dark:border-stone-800 py-8 mt-20 transition-colors duration-300">
-        <div class="max-w-4xl mx-auto px-6 text-center text-stone-500 text-sm">
-            &copy; 2026 PunPjat. Sva prava pridržana. S ljubavlju prema hrani.
+    <footer class="print:hidden bg-olive text-white/80 mt-20">
+        <div class="max-w-4xl mx-auto px-6 py-10 text-center text-xs font-mono">
+            &copy; 2026 PUNPJAT — SVA PRAVA PRIDRŽANA
         </div>
     </footer>
 
@@ -127,9 +194,16 @@
                 let r = await response.json();
 
                 document.getElementById('page-title').innerText = `${r.title} — PunPjat`;
-                document.getElementById('recipe-category').innerText = r.category;
+                document.getElementById('recipe-category').innerText = r.category || 'Recept';
                 document.getElementById('recipe-title').innerText = r.title;
-                document.getElementById('recipe-desc').innerText = r.description;
+                document.getElementById('recipe-desc').innerText = r.description || '';
+                
+                if (r.prep_time) {
+                    const timeEl = document.getElementById('recipe-time');
+                    timeEl.textContent = `⏱ ${r.prep_time}`;
+                    timeEl.classList.remove('hidden');
+                }
+
                 const slikaRecepta = r.image_url || 'https://images.unsplash.com/photo-1545231027-637d2f6610f8?auto=format&fit=crop&w=800&q=80';
                 document.getElementById('recipe-image').src = slikaRecepta;
 
@@ -140,9 +214,9 @@
                     metaDesc.setAttribute('name', 'description');
                     document.head.appendChild(metaDesc);
                 }
-                metaDesc.setAttribute('content', r.description);
+                metaDesc.setAttribute('content', r.description || '');
 
-                // Schema.org Recipe structured data — omogućuje rich snippets u Google pretrazi
+                // Schema.org Recipe structured data
                 const jsonLd = {
                     "@context": "https://schema.org/",
                     "@type": "Recipe",
@@ -171,8 +245,8 @@
                 ingredientsList.innerHTML = '';
                 r.ingredients.forEach(ing => {
                     let li = document.createElement('li');
-                    li.className = "flex items-center gap-2 border-b border-stone-100 dark:border-stone-800/60 pb-2";
-                    li.innerHTML = `<span class="text-orange-600 dark:text-orange-400">•</span> ${ing}`;
+                    li.className = "flex items-start gap-2.5 border-b border-dashed border-ink/10 dark:border-white/10 pb-2.5 last:border-none";
+                    li.innerHTML = `<span class="text-paprika dark:text-saffron font-bold">•</span> <span class="leading-snug">${ing}</span>`;
                     ingredientsList.appendChild(li);
                 });
 
@@ -180,8 +254,8 @@
                 stepsList.innerHTML = '';
                 r.steps.forEach((step, index) => {
                     let li = document.createElement('li');
-                    li.className = "leading-relaxed pb-3 border-b border-stone-100 dark:border-stone-800/60 last:border-none flex gap-3";
-                    li.innerHTML = `<span class="font-bold text-orange-600 dark:text-orange-400">${index + 1}.</span> <span>${step}</span>`;
+                    li.className = "leading-relaxed pb-4 border-b border-dashed border-ink/10 dark:border-white/10 last:border-none flex gap-4";
+                    li.innerHTML = `<span class="font-serif text-2xl font-bold text-paprika dark:text-saffron leading-none">${index + 1}.</span> <span class="flex-grow pt-0.5">${step}</span>`;
                     stepsList.appendChild(li);
                 });
 

@@ -114,6 +114,7 @@
                 <nav class="hidden md:flex items-center gap-6 font-medium text-white/80" aria-label="Glavna navigacija">
                     <a href="/" class="hover:text-saffron transition">Recepti</a>
                     <a href="#recepti" class="hover:text-saffron transition">Pregled</a>
+                    <a href="#newsletter" class="hover:text-saffron transition">Newsletter</a>
                 </nav>
 
                 <button onclick="toggleTheme()" class="p-2.5 rounded-full bg-white/10 hover:bg-white/20 transition" aria-label="Prebaci temu (svijetla/tamna)">
@@ -147,7 +148,7 @@
     <!-- Glavni sadržaj -->
     <main id="glavni-sadrzaj" class="max-w-6xl mx-auto px-6 pb-16 pt-6 flex-grow w-full">
 
-        <section id="recepti" class="mt-6">
+        <section id="recepti" class="mt-6 mb-16">
             <div class="flex flex-col gap-5 mb-10">
                 <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
                     <h2 class="text-3xl font-serif">Najnoviji recepti</h2>
@@ -187,6 +188,38 @@
                     <div class="h-4 bg-ink/10 dark:bg-white/10 rounded w-1/4 mb-3"></div>
                     <div class="h-6 bg-ink/10 dark:bg-white/10 rounded w-3/4 mb-3"></div>
                     <div class="h-4 bg-ink/10 dark:bg-white/10 rounded w-full"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Newsletter CTA Sekcija -->
+        <section id="newsletter" class="my-16">
+            <div class="ticket bg-card dark:bg-carddark border-2 border-ink/15 dark:border-white/15 p-8 md:p-12 rounded-xl shadow-xl relative overflow-hidden">
+                <div class="absolute -right-10 -bottom-10 text-9xl opacity-5 select-none pointer-events-none font-serif" aria-hidden="true">✉️</div>
+                
+                <div class="max-w-xl relative z-10">
+                    <span class="inline-block font-mono text-xs uppercase tracking-widest text-paprika dark:text-saffron bg-paprika/10 dark:bg-saffron/10 px-3 py-1 rounded-full mb-4">Tjedni jelovnik u vašem sandučiću</span>
+                    <h2 class="text-3xl md:text-4xl font-serif mb-3">Nikad više ne pitajte: <em class="italic font-serif text-paprika dark:text-saffron">"Što je danas za ručak?"</em></h2>
+                    <p class="text-ink/70 dark:text-inkdark/70 mb-6 text-sm md:text-base leading-relaxed">
+                        Prijavite se na naš besplatni newsletter i svakog petka ujutro primite provjerene recepte, ideje za brze ručkove i sezonske poslastice izravno na email. Bez spama, samo fini zalogaji.
+                    </p>
+
+                    <form onsubmit="prijavaNewslettera(event)" class="flex flex-col sm:flex-row gap-3">
+                        <input 
+                            type="email" 
+                            id="newsletter-email" 
+                            required 
+                            placeholder="Vaša email adresa..." 
+                            aria-label="Email adresa za newsletter"
+                            class="flex-grow px-4 py-3 rounded-md border-2 border-ink/15 dark:border-white/15 bg-paper dark:bg-paperdark text-sm focus:border-saffron outline-none transition"
+                        >
+                        <button 
+                            type="submit" 
+                            class="bg-olive hover:bg-olivedeep text-white font-bold px-6 py-3 rounded-md transition shadow-md whitespace-nowrap text-sm">
+                            Prijavi se 📩
+                        </button>
+                    </form>
+                    <p id="newsletter-poruka" class="text-xs font-mono mt-3 text-ink/50 dark:text-inkdark/50 hidden"></p>
                 </div>
             </div>
         </section>
@@ -340,6 +373,19 @@
             });
 
             iscrtajRecepte(filtrirano);
+        }
+
+        function prijavaNewslettera(e) {
+            e.preventDefault();
+            const input = document.getElementById('newsletter-email');
+            const poruka = document.getElementById('newsletter-poruka');
+            
+            if (input.value.trim()) {
+                poruka.textContent = '✓ Uspješno ste se prijavili na PunPjat newsletter!';
+                poruka.classList.remove('hidden', 'text-paprika');
+                poruka.classList.add('text-olive', 'dark:text-saffron');
+                input.value = '';
+            }
         }
 
         async function ucitajRecepte() {
