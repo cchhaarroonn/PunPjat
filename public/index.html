@@ -58,8 +58,26 @@
 
         <!-- Sekcija s receptima -->
         <section id="recepti" class="mt-12">
-            <h2 class="text-2xl font-bold text-stone-900 dark:text-white mb-6 border-b border-stone-200 dark:border-stone-800 pb-2">Najnoviji recepti</h2>
-            
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6 border-b border-stone-200 dark:border-stone-800 pb-4">
+                <h2 class="text-2xl font-bold text-stone-900 dark:text-white">Najnoviji recepti</h2>
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <input
+                        id="pretraga-recepata"
+                        type="text"
+                        placeholder="Pretraži recepte..."
+                        class="px-4 py-2 rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                        oninput="filtrirajRecepte()"
+                    >
+                    <select
+                        id="filter-kategorija"
+                        class="px-4 py-2 rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                        onchange="filtrirajRecepte()"
+                    >
+                        <option value="">Sve kategorije</option>
+                    </select>
+                </div>
+            </div>
+
             <div id="grid-recepata" class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <!-- Skeleton loader kartice (prikazuju se dok se podaci ne učitaju) -->
                 <div class="bg-white dark:bg-stone-900 rounded-2xl p-6 border border-stone-200 dark:border-stone-800 animate-pulse">
@@ -113,36 +131,68 @@
             }
         }
 
+        let sviRecepti = [];
+
+        function iscrtajRecepte(recepti) {
+            let grid = document.getElementById('grid-recepata');
+            grid.innerHTML = '';
+
+            if (!Array.isArray(recepti) || recepti.length === 0) {
+                grid.innerHTML = '<p class="text-stone-500 col-span-full text-center">Nema recepata koji odgovaraju pretrazi.</p>';
+                return;
+            }
+
+            recepti.forEach(r => {
+                let slikaUrl = r.image_url || 'https://images.unsplash.com/photo-1545231027-637d2f6610f8?auto=format&fit=crop&w=800&q=80';
+                let kartica = `
+                    <article class="bg-white dark:bg-stone-900 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl dark:hover:border-stone-700 transition border border-stone-200 dark:border-stone-800 flex flex-col group">
+                        <div class="h-48 bg-stone-100 dark:bg-stone-800 overflow-hidden relative">
+                            <img src="${slikaUrl}" alt="${r.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                        </div>
+                        <div class="p-6 flex flex-col flex-grow">
+                            <span class="text-xs font-bold text-orange-600 dark:text-orange-400 uppercase tracking-wider mb-2">${r.category}</span>
+                            <h3 class="text-xl font-bold text-stone-900 dark:text-white mb-2 group-hover:text-orange-600 dark:group-hover:text-orange-400 transition">${r.title}</h3>
+                            <p class="text-stone-600 dark:text-stone-400 text-sm mb-6 flex-grow">${r.description}</p>
+                            <a href="post.html?slug=${r.slug}" class="text-orange-600 dark:text-orange-400 font-semibold text-sm hover:underline mt-auto inline-flex items-center gap-1">Pročitaj recept &rarr;</a>
+                        </div>
+                    </article>
+                `;
+                grid.innerHTML += kartica;
+            });
+        }
+
+        function popuniKategorije(recepti) {
+            let select = document.getElementById('filter-kategorija');
+            let kategorije = [...new Set(recepti.map(r => r.category).filter(Boolean))];
+            kategorije.forEach(kat => {
+                let opt = document.createElement('option');
+                opt.value = kat;
+                opt.textContent = kat;
+                select.appendChild(opt);
+            });
+        }
+
+        function filtrirajRecepte() {
+            let tekst = document.getElementById('pretraga-recepata').value.toLowerCase();
+            let kategorija = document.getElementById('filter-kategorija').value;
+
+            let filtrirano = sviRecepti.filter(r => {
+                let odgovaraTekstu = r.title.toLowerCase().includes(tekst) || r.description.toLowerCase().includes(tekst);
+                let odgovaraKategoriji = !kategorija || r.category === kategorija;
+                return odgovaraTekstu && odgovaraKategoriji;
+            });
+
+            iscrtajRecepte(filtrirano);
+        }
+
         async function ucitajRecepte() {
             try {
                 let response = await fetch('/api/post');
                 let recipes = await response.json();
-                
-                let grid = document.getElementById('grid-recepata');
-                grid.innerHTML = ''; 
 
-                if (!Array.isArray(recipes) || recipes.length === 0) {
-                    grid.innerHTML = '<p class="text-stone-500 col-span-full text-center">Trenutno nema dostupnih recepata.</p>';
-                    return;
-                }
-
-                recipes.forEach(r => {
-                    let slikaUrl = r.image_url || 'https://images.unsplash.com/photo-1545231027-637d2f6610f8?auto=format&fit=crop&w=800&q=80';
-                    let kartica = `
-                        <article class="bg-white dark:bg-stone-900 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl dark:hover:border-stone-700 transition border border-stone-200 dark:border-stone-800 flex flex-col group">
-                            <div class="h-48 bg-stone-100 dark:bg-stone-800 overflow-hidden relative">
-                                <img src="${slikaUrl}" alt="${r.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
-                            </div>
-                            <div class="p-6 flex flex-col flex-grow">
-                                <span class="text-xs font-bold text-orange-600 dark:text-orange-400 uppercase tracking-wider mb-2">${r.category}</span>
-                                <h3 class="text-xl font-bold text-stone-900 dark:text-white mb-2 group-hover:text-orange-600 dark:group-hover:text-orange-400 transition">${r.title}</h3>
-                                <p class="text-stone-600 dark:text-stone-400 text-sm mb-6 flex-grow">${r.description}</p>
-                                <a href="post.html?slug=${r.slug}" class="text-orange-600 dark:text-orange-400 font-semibold text-sm hover:underline mt-auto inline-flex items-center gap-1">Pročitaj recept &rarr;</a>
-                            </div>
-                        </article>
-                    `;
-                    grid.innerHTML += kartica;
-                });
+                sviRecepti = Array.isArray(recipes) ? recipes : [];
+                popuniKategorije(sviRecepti);
+                iscrtajRecepte(sviRecepti);
             } catch (error) {
                 console.error("Greška kod dohvata recepata:", error);
                 document.getElementById('grid-recepata').innerHTML = '<p class="text-red-500 col-span-full text-center">Greška pri učitavanju recepata.</p>';
