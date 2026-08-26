@@ -20,15 +20,15 @@ type Recipe struct {
 func Handler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
+	// Dodajemo keširanje da Vercel pamti odgovor i isporučuje ga trenutno!
+	w.Header().Set("Cache-Control", "public, s-maxage=60, stale-while-revalidate=30")
 
-	// Dohvaćamo varijable
 	supabaseURL := os.Getenv("SUPABASE_URL")
 	supabaseKey := os.Getenv("SUPABASE_SECRET_KEY")
 
-	// Ako slučajno varijable nisu postavljene na Vercelu, spriječit ćemo pad i vratiti jasnu poruku
 	if supabaseURL == "" || supabaseKey == "" {
 		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Nedostaju Supabase environment varijable na Vercelu!"})
+		json.NewEncoder(w).Encode(map[string]string{"error": "Nedostaju varijable"})
 		return
 	}
 
@@ -42,7 +42,6 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	req, err := http.NewRequest("GET", apiURL, nil)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Greška pri kreiranju zahtjeva"})
 		return
 	}
 
@@ -54,29 +53,20 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	resp, err := client.Do(req)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Greška pri spajanju na bazu"})
 		return
 	}
 	defer resp.Body.Close()
 
-	// Provjeravamo je li Supabase vratio grešku
-	if resp.StatusCode != http.StatusOK {
-		w.WriteHeader(resp.StatusCode)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Supabase je odbio zahtjev, provjeri ključeve"})
-		return
-	}
-
 	var recipes []Recipe
 	if err := json.NewDecoder(resp.Body).Decode(&recipes); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Greška pri dekodiranju podataka"})
 		return
 	}
 
 	if querySlug != "" {
 		if len(recipes) == 0 {
 			w.WriteHeader(http.StatusNotFound)
-			json.NewEncoder(w).Encode(map[string]string{"error": "Recept nije pronađen"})
+			json.NewEncoder(w).Encode(map[string]string{"error": "Nema recepta"})
 			return
 		}
 		json.NewEncoder(w).Encode(recipes[0])
