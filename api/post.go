@@ -2,11 +2,14 @@ package handler
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"os"
 )
 
-// Struktura recepta
+// Struktura recepta prilagođena PostgreSQL tablici
 type Recipe struct {
+	ID          int      `json:"id"`
 	Slug        string   `json:"slug"`
 	Title       string   `json:"title"`
 	Category    string   `json:"category"`
@@ -15,67 +18,66 @@ type Recipe struct {
 	Steps       []string `json:"steps"`
 }
 
-// Glavna Go funkcija za API
 func Handler(w http.ResponseWriter, r *http.Request) {
-	// CORS i JSON zaglavlja
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
-	// Lažna baza podataka s receptima
-	recipes := []Recipe{
-		{
-			Slug:        "domaci-cevapi",
-			Title:       "Sočni recept za domaće ćevape",
-			Category:    "Glavna jela",
-			Description: "Nauči kako pripremiti savršene, mekane ćevape s domaćim somunom i lukom.",
-			Ingredients: []string{
-				"500g mljevene junetine",
-				"1 žličica sode bikarbone",
-				"Sol i papar po ukusu",
-				"1 dcl mineralne vode",
-			},
-			Steps: []string{
-				"Meso dobro izmiješajte sa sodom bikarbonom, solju, paprom i mineralnom vodom.",
-				"Ostavite smjesu u hladnjaku minimalno 3 sata, najbolje preko noći.",
-				"Oblikujte ćevape pomoću kalupa ili ruku.",
-				"Pecite na roštilju ili dobro zagrijanoj tavi s malo ulja dok ne dobiju lijepu boju.",
-			},
-		},
-		{
-			Slug:        "palacinke-s-cokoladom",
-			Title:       "Fluffy palačinke s domaćom čokoladom",
-			Category:    "Slastice",
-			Description: "Meke i prozračne palačinke koje uspijevaju baš svaki put.",
-			Ingredients: []string{
-				"2 jaja",
-				"300ml brašna",
-				"200ml mlijeka i 100ml mineralne vode",
-				"Prstohvat soli i žličica šećera",
-			},
-			Steps: []string{
-				"Izmutite jaja, dodajte mlijeko i mineralnu vodu.",
-				"Postupno dodavajte brašno uz miješanje da nema grudica.",
-				"Pecite na vrućoj tavi s malo ulja s obje strane.",
-			},
-		},
+	// Supabase podaci iz environment varijabli (ili direktno upisani za test)
+	supabaseURL := os.Getenv("SUPABASE_URL")
+	supabaseKey := os.Getenv("SUPABASE_SECRET_KEY")
+
+	// Fallback ako zaboraviš postaviti na Vercelu (za lakši test)
+	if supabaseURL == "" {
+		supabaseURL = "https://ldvpfbkhehtrbbwfklmx.supabase.co"
 	}
 
-	// Provjeravamo traži li se specifičan recept preko slug-a (npr. /api/post?slug=domaci-cevapi)
 	querySlug := r.URL.Query().Get("slug")
 
+	// Gradimo URL prema Supabase REST API-ju za tablicu "recipes"
+	apiURL := fmt.Sprintf("%s/rest/v1/recipes?select=*", supabaseURL)
 	if querySlug != "" {
-		for _, recipe := range recipes {
-			if recipe.Slug == querySlug {
-				json.NewEncoder(w).Encode(recipe)
-				return
-			}
-		}
-		// Ako recept nije pronađen
-		w.WriteHeader(http.StatusNotFound)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Recept nije pronađen"})
+		apiURL = fmt.Sprintf("%s&slug=eq.%s", apiURL, querySlug)
+	}
+
+	req, err := http.NewRequest("GET", apiURL, nil)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Greška kod kreiranja zahtjeva prema bazi"})
 		return
 	}
 
-	// Ako nema slug-a, vraća listu svih recepata
+	// Postavljamo Supabase zaglavlja
+	req.Header.Set("apikey", supabaseKey)
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", supabaseKey))
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Ne mogu se spojiti na bazu"})
+		return
+	}
+	defer resp.Body.Close()
+
+	var recipes []Recipe
+	if err := json.NewDecoder(resp.Body).Decode(&recipes); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Greška kod čitanja podataka iz baze"})
+		return
+	}
+
+	// Ako je tražen specifičan slug
+	if querySlug != "" {
+		if len(recipes) == 0 {
+			w.WriteHeader(http.StatusNotFound)
+			json.NewEncoder(w).Encode(map[string]string{"error": "Recept nije pronađen"})
+			return
+		}
+		json.NewEncoder(w).Encode(recipes[0])
+		return
+	}
+
+	// Vrati sve recepte
 	json.NewEncoder(w).Encode(recipes)
 }
