@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
 	"os"
 )
 
@@ -37,12 +38,21 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 	querySlug := r.URL.Query().Get("slug")
 
-	apiURL := fmt.Sprintf("%s/rest/v1/recipes?select=*", supabaseURL)
-	if querySlug != "" {
-		apiURL = fmt.Sprintf("%s&slug=eq.%s", apiURL, querySlug)
+	// Ispravno sastavljanje URL-a i parametara za Supabase PostgREST
+	u, err := url.Parse(fmt.Sprintf("%s/rest/v1/recipes", supabaseURL))
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 
-	req, err := http.NewRequest("GET", apiURL, nil)
+	q := u.Query()
+	q.Set("select", "*")
+	if querySlug != "" {
+		q.Set("slug", fmt.Sprintf("eq.%s", querySlug))
+	}
+	u.RawQuery = q.Encode()
+
+	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
