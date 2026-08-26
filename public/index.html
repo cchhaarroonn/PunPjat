@@ -94,7 +94,6 @@
 
     <!-- Skripte -->
     <script>
-        // Tema skripta
         function initTheme() {
             if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
                 document.documentElement.classList.add('dark');
@@ -114,7 +113,6 @@
             }
         }
 
-        // Dohvat s Go API-ja
         async function ucitajRecepte() {
             try {
                 let response = await fetch('/api/post');
@@ -129,10 +127,11 @@
                 }
 
                 recipes.forEach(r => {
+                    let slikaUrl = r.image_url || 'https://images.unsplash.com/photo-1545231027-637d2f6610f8?auto=format&fit=crop&w=800&q=80';
                     let kartica = `
                         <article class="bg-white dark:bg-stone-900 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl dark:hover:border-stone-700 transition border border-stone-200 dark:border-stone-800 flex flex-col group">
-                            <div class="h-48 bg-stone-100 dark:bg-stone-800 flex items-center justify-center text-stone-400 group-hover:scale-105 transition duration-500">
-                                <span>Slika jela</span>
+                            <div class="h-48 bg-stone-100 dark:bg-stone-800 overflow-hidden relative">
+                                <img src="${slikaUrl}" alt="${r.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
                             </div>
                             <div class="p-6 flex flex-col flex-grow">
                                 <span class="text-xs font-bold text-orange-600 dark:text-orange-400 uppercase tracking-wider mb-2">${r.category}</span>

@@ -49,8 +49,8 @@
         </div>
 
         <!-- Slika recepta -->
-        <div class="w-full h-72 md:h-96 bg-stone-100 dark:bg-stone-900 rounded-2xl overflow-hidden mb-10 flex items-center justify-center text-stone-400 border border-stone-200 dark:border-stone-800 shadow-sm">
-            <span>Slika jela</span>
+        <div class="w-full h-72 md:h-96 bg-stone-100 dark:bg-stone-900 rounded-2xl overflow-hidden mb-10 border border-stone-200 dark:border-stone-800 shadow-sm">
+            <img id="recipe-image" src="" alt="Slika jela" class="w-full h-full object-cover">
         </div>
 
         <!-- Sastojci i Priprema -->
@@ -127,6 +127,7 @@
                 document.getElementById('recipe-category').innerText = r.category;
                 document.getElementById('recipe-title').innerText = r.title;
                 document.getElementById('recipe-desc').innerText = r.description;
+                document.getElementById('recipe-image').src = r.image_url || 'https://images.unsplash.com/photo-1545231027-637d2f6610f8?auto=format&fit=crop&w=800&q=80';
 
                 let ingredientsList = document.getElementById('recipe-ingredients');
                 ingredientsList.innerHTML = '';
