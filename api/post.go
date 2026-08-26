@@ -15,12 +15,15 @@ type Recipe struct {
 	Description string   `json:"description"`
 	Ingredients []string `json:"ingredients"`
 	Steps       []string `json:"steps"`
+	ImageURL    string   `json:"image_url"`
+	PrepTime    string   `json:"prep_time"`
+	Difficulty  string   `json:"difficulty"`
+	Author      string   `json:"author"`
 }
 
 func Handler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
-	// Dodajemo keširanje da Vercel pamti odgovor i isporučuje ga trenutno!
 	w.Header().Set("Cache-Control", "public, s-maxage=60, stale-while-revalidate=30")
 
 	supabaseURL := os.Getenv("SUPABASE_URL")
