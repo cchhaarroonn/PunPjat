@@ -7,7 +7,6 @@ import (
 	"os"
 )
 
-// Struktura recepta prilagođena PostgreSQL tablici
 type Recipe struct {
 	ID          int      `json:"id"`
 	Slug        string   `json:"slug"`
@@ -22,18 +21,19 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
-	// Supabase podaci iz environment varijabli (ili direktno upisani za test)
+	// Dohvaćamo varijable
 	supabaseURL := os.Getenv("SUPABASE_URL")
 	supabaseKey := os.Getenv("SUPABASE_SECRET_KEY")
 
-	// Fallback ako zaboraviš postaviti na Vercelu (za lakši test)
-	if supabaseURL == "" {
-		supabaseURL = "https://ldvpfbkhehtrbbwfklmx.supabase.co"
+	// Ako slučajno varijable nisu postavljene na Vercelu, spriječit ćemo pad i vratiti jasnu poruku
+	if supabaseURL == "" || supabaseKey == "" {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Nedostaju Supabase environment varijable na Vercelu!"})
+		return
 	}
 
 	querySlug := r.URL.Query().Get("slug")
 
-	// Gradimo URL prema Supabase REST API-ju za tablicu "recipes"
 	apiURL := fmt.Sprintf("%s/rest/v1/recipes?select=*", supabaseURL)
 	if querySlug != "" {
 		apiURL = fmt.Sprintf("%s&slug=eq.%s", apiURL, querySlug)
@@ -42,11 +42,10 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	req, err := http.NewRequest("GET", apiURL, nil)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Greška kod kreiranja zahtjeva prema bazi"})
+		json.NewEncoder(w).Encode(map[string]string{"error": "Greška pri kreiranju zahtjeva"})
 		return
 	}
 
-	// Postavljamo Supabase zaglavlja
 	req.Header.Set("apikey", supabaseKey)
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", supabaseKey))
 	req.Header.Set("Content-Type", "application/json")
@@ -55,19 +54,25 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	resp, err := client.Do(req)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Ne mogu se spojiti na bazu"})
+		json.NewEncoder(w).Encode(map[string]string{"error": "Greška pri spajanju na bazu"})
 		return
 	}
 	defer resp.Body.Close()
 
-	var recipes []Recipe
-	if err := json.NewDecoder(resp.Body).Decode(&recipes); err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Greška kod čitanja podataka iz baze"})
+	// Provjeravamo je li Supabase vratio grešku
+	if resp.StatusCode != http.StatusOK {
+		w.WriteHeader(resp.StatusCode)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Supabase je odbio zahtjev, provjeri ključeve"})
 		return
 	}
 
-	// Ako je tražen specifičan slug
+	var recipes []Recipe
+	if err := json.NewDecoder(resp.Body).Decode(&recipes); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Greška pri dekodiranju podataka"})
+		return
+	}
+
 	if querySlug != "" {
 		if len(recipes) == 0 {
 			w.WriteHeader(http.StatusNotFound)
@@ -78,6 +83,5 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Vrati sve recepte
 	json.NewEncoder(w).Encode(recipes)
 }
