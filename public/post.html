@@ -15,7 +15,7 @@
 <body class="bg-stone-50 dark:bg-stone-950 text-stone-800 dark:text-stone-100 font-sans antialiased min-h-screen flex flex-col justify-between transition-colors duration-300">
 
     <!-- Navigacija -->
-    <header class="bg-white/80 dark:bg-stone-900/80 backdrop-blur-md border-b border-stone-200 dark:border-stone-800 sticky top-0 z-50 transition-colors duration-300">
+    <header class="print:hidden bg-white/80 dark:bg-stone-900/80 backdrop-blur-md border-b border-stone-200 dark:border-stone-800 sticky top-0 z-50 transition-colors duration-300">
         <div class="max-w-4xl mx-auto px-6 h-20 flex items-center justify-between">
             <a href="/" class="text-2xl font-black tracking-tight text-orange-600 dark:text-orange-500 flex items-center gap-2">
                 <span>🍲</span> PunPjat
@@ -46,6 +46,9 @@
             <p id="recipe-desc" class="text-lg text-stone-600 dark:text-stone-400">
                 Molimo pričekajte trenutak dok dohvatimo podatke o jelu.
             </p>
+            <button onclick="window.print()" class="print:hidden mt-4 inline-flex items-center gap-2 text-sm font-semibold text-stone-500 dark:text-stone-400 hover:text-orange-600 dark:hover:text-orange-400 transition">
+                🖨️ Isprintaj recept
+            </button>
         </div>
 
         <!-- Slika recepta -->
@@ -127,7 +130,42 @@
                 document.getElementById('recipe-category').innerText = r.category;
                 document.getElementById('recipe-title').innerText = r.title;
                 document.getElementById('recipe-desc').innerText = r.description;
-                document.getElementById('recipe-image').src = r.image_url || 'https://images.unsplash.com/photo-1545231027-637d2f6610f8?auto=format&fit=crop&w=800&q=80';
+                const slikaRecepta = r.image_url || 'https://images.unsplash.com/photo-1545231027-637d2f6610f8?auto=format&fit=crop&w=800&q=80';
+                document.getElementById('recipe-image').src = slikaRecepta;
+
+                // Meta description za tražilice
+                let metaDesc = document.querySelector('meta[name="description"]');
+                if (!metaDesc) {
+                    metaDesc = document.createElement('meta');
+                    metaDesc.setAttribute('name', 'description');
+                    document.head.appendChild(metaDesc);
+                }
+                metaDesc.setAttribute('content', r.description);
+
+                // Schema.org Recipe structured data — omogućuje rich snippets u Google pretrazi
+                const jsonLd = {
+                    "@context": "https://schema.org/",
+                    "@type": "Recipe",
+                    "name": r.title,
+                    "image": [slikaRecepta],
+                    "description": r.description,
+                    "recipeCategory": r.category,
+                    "author": {
+                        "@type": "Person",
+                        "name": r.author || "PunPjat"
+                    },
+                    "recipeIngredient": r.ingredients,
+                    "recipeInstructions": r.steps.map(step => ({
+                        "@type": "HowToStep",
+                        "text": step
+                    }))
+                };
+                if (r.prep_time) jsonLd.totalTime = r.prep_time;
+
+                const scriptTag = document.createElement('script');
+                scriptTag.type = 'application/ld+json';
+                scriptTag.textContent = JSON.stringify(jsonLd);
+                document.head.appendChild(scriptTag);
 
                 let ingredientsList = document.getElementById('recipe-ingredients');
                 ingredientsList.innerHTML = '';

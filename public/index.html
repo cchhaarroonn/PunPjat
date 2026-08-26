@@ -3,100 +3,190 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#3F4A2E">
+    <meta name="description" content="PunPjat — provjereni recepti za brza jela, tradicionalne specijalitete i slatke poslastice. Svaki dan pun pjat dobre hrane.">
     <title>PunPjat — Najbolji recepti na jednom mjestu</title>
-    <!-- Tailwind CSS CDN -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍲</text></svg>">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Space+Mono:wght@400;700&family=Work+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        paper: '#F6EFDD',
+                        paperdark: '#1B1D14',
+                        ink: '#2A2318',
+                        inkdark: '#F1E9D8',
+                        olive: '#3F4A2E',
+                        olivedeep: '#2E361F',
+                        saffron: '#E2A63B',
+                        paprika: '#B8451F',
+                        card: '#FFFCF4',
+                        carddark: '#262A1C',
+                    },
+                    fontFamily: {
+                        serif: ['"Instrument Serif"', 'Georgia', 'serif'],
+                        sans: ['"Work Sans"', 'sans-serif'],
+                        mono: ['"Space Mono"', 'monospace'],
+                    },
+                }
+            }
         }
     </script>
+
+    <style>
+        :root { --page-bg: #F6EFDD; }
+        .dark { --page-bg: #1B1D14; }
+
+        /* Poderani/nazubljeni rub kartice-cedulje */
+        .ticket { position: relative; }
+        .ticket::after {
+            content: "";
+            position: absolute;
+            left: 0; right: 0; bottom: -1px;
+            height: 13px;
+            background-image:
+                linear-gradient(135deg, var(--page-bg) 50%, transparent 50%),
+                linear-gradient(45deg, var(--page-bg) 50%, transparent 50%);
+            background-size: 16px 16px;
+            background-position: bottom left;
+            background-repeat: repeat-x;
+            pointer-events: none;
+        }
+
+        /* Pečat kategorije */
+        .stamp {
+            border: 2px dashed currentColor;
+            transform: rotate(-6deg);
+        }
+
+        /* Cik-cak razdjelnica ispod herosa */
+        .jagged-divider {
+            display: block;
+            width: 100%;
+            height: 22px;
+            background-color: var(--page-bg);
+            clip-path: polygon(
+                0% 100%, 4% 0%, 8% 100%, 12% 0%, 16% 100%, 20% 0%, 24% 100%, 28% 0%,
+                32% 100%, 36% 0%, 40% 100%, 44% 0%, 48% 100%, 52% 0%, 56% 100%, 60% 0%,
+                64% 100%, 68% 0%, 72% 100%, 76% 0%, 80% 100%, 84% 0%, 88% 100%, 92% 0%,
+                96% 100%, 100% 0%, 100% 100%
+            );
+        }
+
+        ::selection { background: #E2A63B; color: #2A2318; }
+
+        :focus-visible {
+            outline: 3px solid #E2A63B;
+            outline-offset: 2px;
+            border-radius: 4px;
+        }
+
+        .skip-link:not(:focus) {
+            position: absolute !important;
+            width: 1px; height: 1px; overflow: hidden;
+            clip: rect(0 0 0 0);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+        }
+    </style>
 </head>
-<body class="bg-stone-50 dark:bg-stone-950 text-stone-800 dark:text-stone-100 font-sans antialiased min-h-screen flex flex-col justify-between transition-colors duration-300">
+<body class="bg-paper dark:bg-paperdark text-ink dark:text-inkdark font-sans antialiased min-h-screen flex flex-col transition-colors duration-300">
+
+    <a href="#glavni-sadrzaj" class="skip-link fixed top-2 left-2 z-[100] bg-saffron text-ink font-bold px-4 py-2 rounded-md">Preskoči na sadržaj</a>
 
     <!-- Navigacija -->
-    <header class="bg-white/80 dark:bg-stone-900/80 backdrop-blur-md border-b border-stone-200 dark:border-stone-800 sticky top-0 z-50 transition-colors duration-300">
+    <header class="bg-olive text-white sticky top-0 z-50">
         <div class="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
-            <a href="/" class="text-2xl font-black tracking-tight text-orange-600 dark:text-orange-500 flex items-center gap-2">
-                <span>🍲</span> PunPjat
+            <a href="/" class="text-2xl font-serif italic tracking-tight flex items-center gap-2">
+                <span aria-hidden="true">🍲</span> PunPjat
             </a>
-            
-            <div class="flex items-center gap-6">
-                <nav class="hidden md:flex items-center gap-6 font-medium text-stone-600 dark:text-stone-300">
-                    <a href="/" class="hover:text-orange-600 dark:hover:text-orange-400 transition">Recepti</a>
-                    <a href="#recepti" class="hover:text-orange-600 dark:hover:text-orange-400 transition">Pregled</a>
+
+            <div class="flex items-center gap-3 sm:gap-6">
+                <nav class="hidden md:flex items-center gap-6 font-medium text-white/80" aria-label="Glavna navigacija">
+                    <a href="/" class="hover:text-saffron transition">Recepti</a>
+                    <a href="#recepti" class="hover:text-saffron transition">Pregled</a>
                 </nav>
 
-                <!-- Gumb za Light/Dark Theme -->
-                <button onclick="toggleTheme()" class="p-2.5 rounded-xl bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-700 transition shadow-sm" aria-label="Prebaci temu">
-                    <!-- Sunce ikona -->
-                    <svg id="sun-icon" class="w-5 h-5 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-                    <!-- Mjesec ikona -->
-                    <svg id="moon-icon" class="w-5 h-5 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path></svg>
+                <button onclick="toggleTheme()" class="p-2.5 rounded-full bg-white/10 hover:bg-white/20 transition" aria-label="Prebaci temu (svijetla/tamna)">
+                    <svg id="sun-icon" class="w-5 h-5 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                    <svg id="moon-icon" class="w-5 h-5 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path></svg>
                 </button>
             </div>
         </div>
     </header>
 
-    <!-- Glavni sadržaj -->
-    <main class="max-w-6xl mx-auto px-6 py-12 flex-grow w-full">
-        
-        <!-- Hero sekcija -->
-        <section class="text-center py-12 md:py-20">
-            <h1 class="text-4xl md:text-6xl font-extrabold text-stone-900 dark:text-white tracking-tight mb-6">
-                Svaki dan <span class="text-orange-600 dark:text-orange-500">pun pjat</span> dobre hrane!
+    <!-- Hero -->
+    <section class="bg-olive text-white relative">
+        <div class="max-w-6xl mx-auto px-6 pt-14 pb-20 md:pt-20 md:pb-28 text-center">
+            <span class="inline-block font-mono text-xs tracking-widest uppercase bg-white/10 border border-white/20 px-3 py-1 rounded-full mb-6">Kuhinja otvorena svaki dan</span>
+            <h1 class="text-4xl md:text-6xl font-serif tracking-tight mb-6 leading-[1.1]">
+                Svaki dan <em class="text-saffron not-italic font-serif italic">pun pjat</em> dobre hrane
             </h1>
-            <p class="text-lg md:text-xl text-stone-600 dark:text-stone-400 max-w-2xl mx-auto mb-8">
-                Otkrij provjerene recepte za brza jela, tradicionalne specijalitete i slatke poslastice. 
+            <p class="text-lg md:text-xl text-white/70 max-w-2xl mx-auto mb-10">
+                Provjereni recepti za brza jela, tradicionalne specijalitete i slatke poslastice — testirano u pravoj kuhinji, ne u laboratoriju.
             </p>
-            <div class="flex justify-center gap-4">
-                <a href="#recepti" class="bg-orange-600 hover:bg-orange-700 dark:bg-orange-500 dark:hover:bg-orange-600 text-white font-semibold px-6 py-3 rounded-xl shadow-lg shadow-orange-600/20 transition">
-                    Pregledaj recepte
+            <div class="flex flex-wrap justify-center gap-4 mb-8">
+                <a href="#recepti" class="bg-saffron hover:bg-saffron/90 text-ink font-bold px-6 py-3 rounded-md shadow-lg shadow-black/20 transition">
+                    Pregledaj recepte ↓
                 </a>
             </div>
-        </section>
+            <p id="stat-recepata" class="font-mono text-xs text-white/50 uppercase tracking-widest">Učitavanje recepata...</p>
+        </div>
+        <span class="jagged-divider absolute -bottom-px left-0" aria-hidden="true"></span>
+    </section>
 
-        <!-- Sekcija s receptima -->
-        <section id="recepti" class="mt-12">
-            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6 border-b border-stone-200 dark:border-stone-800 pb-4">
-                <h2 class="text-2xl font-bold text-stone-900 dark:text-white">Najnoviji recepti</h2>
-                <div class="flex flex-col sm:flex-row gap-3">
-                    <input
-                        id="pretraga-recepata"
-                        type="text"
-                        placeholder="Pretraži recepte..."
-                        class="px-4 py-2 rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
-                        oninput="filtrirajRecepte()"
-                    >
-                    <select
-                        id="filter-kategorija"
-                        class="px-4 py-2 rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
-                        onchange="filtrirajRecepte()"
-                    >
-                        <option value="">Sve kategorije</option>
-                    </select>
+    <!-- Glavni sadržaj -->
+    <main id="glavni-sadrzaj" class="max-w-6xl mx-auto px-6 pb-16 pt-6 flex-grow w-full">
+
+        <section id="recepti" class="mt-6">
+            <div class="flex flex-col gap-5 mb-10">
+                <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+                    <h2 class="text-3xl font-serif">Najnoviji recepti</h2>
+                    <div class="relative w-full sm:w-72">
+                        <input
+                            id="pretraga-recepata"
+                            type="search"
+                            placeholder="Pretraži recepte..."
+                            aria-label="Pretraži recepte"
+                            class="w-full pl-10 pr-4 py-2.5 rounded-md border-2 border-ink/10 dark:border-white/10 bg-card dark:bg-carddark text-sm focus:border-saffron outline-none transition"
+                            oninput="filtrirajRecepte()"
+                        >
+                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-ink/40 dark:text-inkdark/40" aria-hidden="true">🔍</span>
+                    </div>
                 </div>
+
+                <!-- Kategorije kao čipovi -->
+                <div id="filter-kategorije" class="flex flex-wrap gap-2" role="group" aria-label="Filtriraj po kategoriji"></div>
             </div>
 
-            <div id="grid-recepata" class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <!-- Skeleton loader kartice (prikazuju se dok se podaci ne učitaju) -->
-                <div class="bg-white dark:bg-stone-900 rounded-2xl p-6 border border-stone-200 dark:border-stone-800 animate-pulse">
-                    <div class="h-48 bg-stone-200 dark:bg-stone-800 rounded-xl mb-4"></div>
-                    <div class="h-4 bg-stone-200 dark:bg-stone-800 rounded w-1/4 mb-3"></div>
-                    <div class="h-6 bg-stone-200 dark:bg-stone-800 rounded w-3/4 mb-3"></div>
-                    <div class="h-4 bg-stone-200 dark:bg-stone-800 rounded w-full"></div>
+            <div id="grid-recepata" class="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-12">
+                <!-- Skeleton kartice dok se učitava -->
+                <div class="bg-card dark:bg-carddark rounded-lg p-5 border border-ink/10 dark:border-white/10 animate-pulse">
+                    <div class="h-48 bg-ink/10 dark:bg-white/10 rounded-md mb-4"></div>
+                    <div class="h-4 bg-ink/10 dark:bg-white/10 rounded w-1/4 mb-3"></div>
+                    <div class="h-6 bg-ink/10 dark:bg-white/10 rounded w-3/4 mb-3"></div>
+                    <div class="h-4 bg-ink/10 dark:bg-white/10 rounded w-full"></div>
                 </div>
-                <div class="bg-white dark:bg-stone-900 rounded-2xl p-6 border border-stone-200 dark:border-stone-800 animate-pulse hidden md:block">
-                    <div class="h-48 bg-stone-200 dark:bg-stone-800 rounded-xl mb-4"></div>
-                    <div class="h-4 bg-stone-200 dark:bg-stone-800 rounded w-1/4 mb-3"></div>
-                    <div class="h-6 bg-stone-200 dark:bg-stone-800 rounded w-3/4 mb-3"></div>
-                    <div class="h-4 bg-stone-200 dark:bg-stone-800 rounded w-full"></div>
+                <div class="bg-card dark:bg-carddark rounded-lg p-5 border border-ink/10 dark:border-white/10 animate-pulse hidden md:block">
+                    <div class="h-48 bg-ink/10 dark:bg-white/10 rounded-md mb-4"></div>
+                    <div class="h-4 bg-ink/10 dark:bg-white/10 rounded w-1/4 mb-3"></div>
+                    <div class="h-6 bg-ink/10 dark:bg-white/10 rounded w-3/4 mb-3"></div>
+                    <div class="h-4 bg-ink/10 dark:bg-white/10 rounded w-full"></div>
                 </div>
-                <div class="bg-white dark:bg-stone-900 rounded-2xl p-6 border border-stone-200 dark:border-stone-800 animate-pulse hidden md:block">
-                    <div class="h-48 bg-stone-200 dark:bg-stone-800 rounded-xl mb-4"></div>
-                    <div class="h-4 bg-stone-200 dark:bg-stone-800 rounded w-1/4 mb-3"></div>
-                    <div class="h-6 bg-stone-200 dark:bg-stone-800 rounded w-3/4 mb-3"></div>
-                    <div class="h-4 bg-stone-200 dark:bg-stone-800 rounded w-full"></div>
+                <div class="bg-card dark:bg-carddark rounded-lg p-5 border border-ink/10 dark:border-white/10 animate-pulse hidden md:block">
+                    <div class="h-48 bg-ink/10 dark:bg-white/10 rounded-md mb-4"></div>
+                    <div class="h-4 bg-ink/10 dark:bg-white/10 rounded w-1/4 mb-3"></div>
+                    <div class="h-6 bg-ink/10 dark:bg-white/10 rounded w-3/4 mb-3"></div>
+                    <div class="h-4 bg-ink/10 dark:bg-white/10 rounded w-full"></div>
                 </div>
             </div>
         </section>
@@ -104,9 +194,30 @@
     </main>
 
     <!-- Podnožje -->
-    <footer class="bg-white dark:bg-stone-900 border-t border-stone-200 dark:border-stone-800 py-8 mt-20 transition-colors duration-300">
-        <div class="max-w-6xl mx-auto px-6 text-center text-stone-500 text-sm">
-            &copy; 2026 PunPjat. Sva prava pridržana. S ljubavlju prema hrani.
+    <footer class="bg-olive text-white/80 mt-10">
+        <div class="max-w-6xl mx-auto px-6 py-14 grid grid-cols-1 md:grid-cols-3 gap-10">
+            <div>
+                <a href="/" class="text-xl font-serif italic text-white flex items-center gap-2 mb-3">
+                    <span aria-hidden="true">🍲</span> PunPjat
+                </a>
+                <p class="text-sm text-white/60 max-w-xs">Recepti skupljani iz stvarne kuhinje — bez nepotrebnih priča, samo dobra hrana na stolu.</p>
+            </div>
+            <div>
+                <h3 class="font-mono text-xs uppercase tracking-widest text-saffron mb-4">Kategorije</h3>
+                <ul id="footer-kategorije" class="space-y-2 text-sm"></ul>
+            </div>
+            <div>
+                <h3 class="font-mono text-xs uppercase tracking-widest text-saffron mb-4">Pratite nas</h3>
+                <div class="flex gap-3">
+                    <a href="#" class="w-9 h-9 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition" aria-label="Instagram">📷</a>
+                    <a href="#" class="w-9 h-9 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition" aria-label="Facebook">📘</a>
+                    <a href="#" class="w-9 h-9 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition" aria-label="YouTube">▶️</a>
+                </div>
+                <!-- Napomena: zamijeni # pravim poveznicama na profile -->
+            </div>
+        </div>
+        <div class="border-t border-white/10 py-6 text-center text-white/50 text-xs font-mono">
+            &copy; 2026 PUNPJAT — SVA PRAVA PRIDRŽANA
         </div>
     </footer>
 
@@ -132,53 +243,100 @@
         }
 
         let sviRecepti = [];
+        let aktivnaKategorija = new URLSearchParams(window.location.search).get('kategorija') || '';
+
+        function ikonaTezine(tezina) {
+            if (!tezina) return '👨‍🍳';
+            const t = tezina.toLowerCase();
+            if (t.includes('lak')) return '🌶️';
+            if (t.includes('srednj')) return '🌶️🌶️';
+            if (t.includes('teš') || t.includes('tez')) return '🌶️🌶️🌶️';
+            return '👨‍🍳';
+        }
+
+        function karticaRecepta(r) {
+            const slikaUrl = r.image_url || 'https://images.unsplash.com/photo-1545231027-637d2f6610f8?auto=format&fit=crop&w=800&q=80';
+            const metaBits = [];
+            if (r.prep_time) metaBits.push(`⏱ ${escapeHtml(r.prep_time)}`);
+            if (r.difficulty) metaBits.push(`${ikonaTezine(r.difficulty)} ${escapeHtml(r.difficulty)}`);
+
+            return `
+                <article class="ticket bg-card dark:bg-carddark border border-ink/10 dark:border-white/10 flex flex-col group hover:-translate-y-1 hover:rotate-[-0.5deg] transition duration-300 mb-3">
+                    <div class="h-48 bg-ink/5 dark:bg-white/5 overflow-hidden relative">
+                        <img src="${slikaUrl}" alt="${escapeHtml(r.title)}" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                        <span class="stamp absolute top-3 left-3 bg-paper/95 dark:bg-paperdark/95 text-ink dark:text-inkdark text-[10px] font-mono uppercase tracking-wider px-2.5 py-1 rounded-full">${escapeHtml(r.category || 'Recept')}</span>
+                    </div>
+                    <div class="p-5 flex flex-col flex-grow">
+                        <h3 class="text-xl font-serif mb-2 group-hover:text-paprika dark:group-hover:text-saffron transition">${escapeHtml(r.title)}</h3>
+                        <p class="text-ink/70 dark:text-inkdark/70 text-sm mb-4 flex-grow leading-relaxed">${escapeHtml(r.description || '')}</p>
+                        ${metaBits.length ? `<div class="font-mono text-[11px] text-ink/50 dark:text-inkdark/50 flex gap-3 mb-4 pt-3 border-t border-dashed border-ink/15 dark:border-white/15">${metaBits.join('<span class="opacity-40">|</span>')}</div>` : ''}
+                        <a href="post.html?slug=${encodeURIComponent(r.slug)}" class="text-paprika dark:text-saffron font-bold text-sm hover:underline mt-auto inline-flex items-center gap-1">Pročitaj recept &rarr;</a>
+                    </div>
+                </article>
+            `;
+        }
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str ?? '';
+            return div.innerHTML;
+        }
 
         function iscrtajRecepte(recepti) {
-            let grid = document.getElementById('grid-recepata');
+            const grid = document.getElementById('grid-recepata');
             grid.innerHTML = '';
 
             if (!Array.isArray(recepti) || recepti.length === 0) {
-                grid.innerHTML = '<p class="text-stone-500 col-span-full text-center">Nema recepata koji odgovaraju pretrazi.</p>';
+                grid.innerHTML = `
+                    <div class="col-span-full text-center py-16">
+                        <p class="text-4xl mb-3">🍽️</p>
+                        <p class="font-serif text-xl mb-1">Prazan tanjur.</p>
+                        <p class="text-ink/60 dark:text-inkdark/60 text-sm">Nema recepata koji odgovaraju pretrazi — pokušaj s drugim pojmom.</p>
+                    </div>`;
                 return;
             }
 
-            recepti.forEach(r => {
-                let slikaUrl = r.image_url || 'https://images.unsplash.com/photo-1545231027-637d2f6610f8?auto=format&fit=crop&w=800&q=80';
-                let kartica = `
-                    <article class="bg-white dark:bg-stone-900 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl dark:hover:border-stone-700 transition border border-stone-200 dark:border-stone-800 flex flex-col group">
-                        <div class="h-48 bg-stone-100 dark:bg-stone-800 overflow-hidden relative">
-                            <img src="${slikaUrl}" alt="${r.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
-                        </div>
-                        <div class="p-6 flex flex-col flex-grow">
-                            <span class="text-xs font-bold text-orange-600 dark:text-orange-400 uppercase tracking-wider mb-2">${r.category}</span>
-                            <h3 class="text-xl font-bold text-stone-900 dark:text-white mb-2 group-hover:text-orange-600 dark:group-hover:text-orange-400 transition">${r.title}</h3>
-                            <p class="text-stone-600 dark:text-stone-400 text-sm mb-6 flex-grow">${r.description}</p>
-                            <a href="post.html?slug=${r.slug}" class="text-orange-600 dark:text-orange-400 font-semibold text-sm hover:underline mt-auto inline-flex items-center gap-1">Pročitaj recept &rarr;</a>
-                        </div>
-                    </article>
-                `;
-                grid.innerHTML += kartica;
-            });
+            grid.innerHTML = recepti.map(karticaRecepta).join('');
         }
 
         function popuniKategorije(recepti) {
-            let select = document.getElementById('filter-kategorija');
-            let kategorije = [...new Set(recepti.map(r => r.category).filter(Boolean))];
-            kategorije.forEach(kat => {
-                let opt = document.createElement('option');
-                opt.value = kat;
-                opt.textContent = kat;
-                select.appendChild(opt);
+            const kategorije = [...new Set(recepti.map(r => r.category).filter(Boolean))].sort();
+
+            const wrap = document.getElementById('filter-kategorije');
+            const sveAktivno = aktivnaKategorija === '';
+            wrap.innerHTML = `
+                <button type="button" data-kat="" aria-pressed="${sveAktivno}"
+                    class="chip-kategorija px-4 py-1.5 rounded-full text-sm font-medium border-2 transition ${sveAktivno ? 'bg-saffron border-saffron text-ink' : 'border-ink/15 dark:border-white/15 hover:border-saffron'}">
+                    Sve
+                </button>
+            ` + kategorije.map(kat => {
+                const aktivno = kat === aktivnaKategorija;
+                return `<button type="button" data-kat="${escapeHtml(kat)}" aria-pressed="${aktivno}"
+                    class="chip-kategorija px-4 py-1.5 rounded-full text-sm font-medium border-2 transition ${aktivno ? 'bg-saffron border-saffron text-ink' : 'border-ink/15 dark:border-white/15 hover:border-saffron'}">
+                    ${escapeHtml(kat)}
+                </button>`;
+            }).join('');
+
+            wrap.querySelectorAll('.chip-kategorija').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    aktivnaKategorija = btn.dataset.kat;
+                    popuniKategorije(sviRecepti);
+                    filtrirajRecepte();
+                });
             });
+
+            const footerWrap = document.getElementById('footer-kategorije');
+            footerWrap.innerHTML = kategorije.map(kat =>
+                `<li><a href="/?kategorija=${encodeURIComponent(kat)}#recepti" class="hover:text-saffron transition">${escapeHtml(kat)}</a></li>`
+            ).join('');
         }
 
         function filtrirajRecepte() {
-            let tekst = document.getElementById('pretraga-recepata').value.toLowerCase();
-            let kategorija = document.getElementById('filter-kategorija').value;
+            const tekst = document.getElementById('pretraga-recepata').value.toLowerCase();
 
-            let filtrirano = sviRecepti.filter(r => {
-                let odgovaraTekstu = r.title.toLowerCase().includes(tekst) || r.description.toLowerCase().includes(tekst);
-                let odgovaraKategoriji = !kategorija || r.category === kategorija;
+            const filtrirano = sviRecepti.filter(r => {
+                const odgovaraTekstu = (r.title || '').toLowerCase().includes(tekst) || (r.description || '').toLowerCase().includes(tekst);
+                const odgovaraKategoriji = !aktivnaKategorija || r.category === aktivnaKategorija;
                 return odgovaraTekstu && odgovaraKategoriji;
             });
 
@@ -187,19 +345,26 @@
 
         async function ucitajRecepte() {
             try {
-                let response = await fetch('/api/post');
-                let recipes = await response.json();
+                const response = await fetch('/api/post');
+                const recepti = await response.json();
 
-                sviRecepti = Array.isArray(recipes) ? recipes : [];
+                sviRecepti = Array.isArray(recepti) ? recepti : [];
+                document.getElementById('stat-recepata').textContent = `${sviRecepti.length} ${sviRecepti.length === 1 ? 'recept čeka' : 'recepata čeka'} u kuhinji`;
                 popuniKategorije(sviRecepti);
-                iscrtajRecepte(sviRecepti);
+                filtrirajRecepte();
             } catch (error) {
-                console.error("Greška kod dohvata recepata:", error);
-                document.getElementById('grid-recepata').innerHTML = '<p class="text-red-500 col-span-full text-center">Greška pri učitavanju recepata.</p>';
+                console.error('Greška kod dohvata recepata:', error);
+                document.getElementById('grid-recepata').innerHTML = `
+                    <div class="col-span-full text-center py-16">
+                        <p class="text-4xl mb-3">🔥</p>
+                        <p class="font-serif text-xl mb-1">Nešto je zagorjelo.</p>
+                        <p class="text-ink/60 dark:text-inkdark/60 text-sm">Greška pri učitavanju recepata. Pokušaj osvježiti stranicu.</p>
+                    </div>`;
+                document.getElementById('stat-recepata').textContent = '';
             }
         }
 
-        window.onload = ucitajRecepte;
+        window.addEventListener('DOMContentLoaded', ucitajRecepte);
     </script>
 </body>
 </html>
